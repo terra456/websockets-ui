@@ -19,6 +19,7 @@ const config = {
       },
     ],
   },
+  transformIgnorePatterns: ['/node_modules/(?!(foo|bar)/)', '/bar/'],
 };
 
 export default config;

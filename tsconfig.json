@@ -3,6 +3,7 @@
     "target": "es6",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "isolatedModules": true,
     "noEmit": true,
     "noEmitOnError": true,
     "resolveJsonModule": true,
