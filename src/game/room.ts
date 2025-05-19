@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { type UpdateRoom, type AddShips, type IUser, type GameInfo, type Attack } from '../types/types.ts';
+import { type UpdateRoom, type AddShips, type IUser, type GameInfo, type Attack, type Coordinates } from '../types/types.ts';
 import Game from './game.ts';
 import { EventEmitter } from 'node:events';
+import randomIntFromInterval from '../utils/random.ts';
 class GameEmitter extends EventEmitter {}
 
 class Room {
@@ -12,6 +13,7 @@ class Room {
   gameEmitter: GameEmitter;
   gameId: string;
   currentPlayerIndex: string = '';
+  destroy: () => void = () => {};
 
   constructor(user: IUser) {
     this.gameEmitter = new GameEmitter();
@@ -66,9 +68,8 @@ class Room {
     this.gameEmitter.emit('start_game');
   };
 
-  attack = (data: string): void => {
+  attack(data: string): void {
     const { indexPlayer, x, y } = JSON.parse(data) as Attack;
-    console.log('indexPlayer', indexPlayer);
     if (indexPlayer && indexPlayer === this.currentPlayerIndex) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const anoutherGame = this.games.find((el) => el.indexPlayer !== indexPlayer)!;
@@ -79,15 +80,35 @@ class Room {
         feedback.forEach((el) => {
           el.currentPlayer = indexPlayer;
         });
-        this.gameEmitter.emit('attack_feedback', feedback);
         if (feedback.length === 1 && feedback[0].status === 'miss') {
           this.currentPlayerIndex = anoutherGame.indexPlayer;
-        } else if (feedback.length > 1) {
+        }
+        this.gameEmitter.emit('attack_feedback', feedback);
+        if (feedback.length > 1) {
           if (anoutherGame.ships.filter((ship) => ship.status === 'killed').length === 10) {
             this.gameEmitter.emit('finish', { winPlayer: this.currentPlayerIndex });
           }
         }
       }
+    }
+  }
+
+  randomAttack = (data: string): void => {
+    const { indexPlayer, gameId } = JSON.parse(data);
+    if (indexPlayer && indexPlayer === this.currentPlayerIndex) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const anoutherGame = this.games.find((el) => el.indexPlayer !== indexPlayer)!;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+      const getMissCell = (): Coordinates => {
+        const x = randomIntFromInterval(0, 9);
+        const y = randomIntFromInterval(0, 9);
+        if (anoutherGame.gameBoard[y][x].isShoot) {
+          return getMissCell();
+        }
+        return { x, y };
+      };
+      const coordinates = getMissCell();
+      this.attack(JSON.stringify({ indexPlayer, gameId, ...coordinates }));
     }
   };
 }

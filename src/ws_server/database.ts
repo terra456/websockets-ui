@@ -1,6 +1,8 @@
+import SingleRoom from '../game/single_room.ts';
 import Room from '../game/room.ts';
 import User from '../game/user.ts';
 import { type Winner, type LoginRequest, type UpdateRoom, type IUser } from '../types/types.ts';
+import { serverEmitter } from './index.ts';
 import type UserSession from './user_session.ts';
 
 class Database {
@@ -9,7 +11,6 @@ class Database {
 
   registrate = (data: LoginRequest): User => {
     const user = new User(data);
-    console.log(user);
     this.users.push(user);
     return user;
   };
@@ -23,7 +24,6 @@ class Database {
 
   login = (data: string, userSession: UserSession): void => {
     const userData = JSON.parse(data) as LoginRequest;
-    console.log(data);
     let user = this.users.find((user) => user.name === userData.name);
     if (user) {
       if (user.password !== userData.password) {
@@ -72,8 +72,16 @@ class Database {
       const { name, index } = userSession.user.getUser();
       const room = new Room({ name, index });
       this.rooms.push(room);
+      room.destroy = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        // room === undefined;
+        const ind = this.rooms.findIndex((el) => el.roomId === room.roomId);
+        if (ind >= 0) {
+          this.rooms.splice(ind, 1);
+        }
+      };
       userSession.setRoom(room);
-      userSession.sendMessage({
+      serverEmitter.emit('message', {
         type: 'update_room',
         data: JSON.stringify(this.getFreeRoms()),
         id: 0,
@@ -91,8 +99,35 @@ class Database {
       const { name, index } = userSession.user?.getUser() as IUser;
       room.addUserToRoom({ name, index });
       userSession.setRoom(room);
-      room.gameEmitter.emit('update_room');
+      serverEmitter.emit('message', {
+        type: 'update_room',
+        data: JSON.stringify(this.getFreeRoms()),
+        id: 0,
+      });
       room.gameEmitter.emit('create_game');
+    }
+  };
+
+  singlePlay = (_data: string, userSession: UserSession): void => {
+    if (userSession.user && userSession.room === undefined) {
+      const { name, index } = userSession.user.getUser();
+      const room = new SingleRoom({ name, index });
+      this.rooms.push(room);
+      room.destroy = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        // room === undefined;
+        const ind = this.rooms.findIndex((el) => el.roomId === room.roomId);
+        if (ind >= 0) {
+          this.rooms.splice(ind, 1);
+        }
+      };
+      userSession.setRoom(room);
+      room.gameEmitter.emit('create_game');
+      // userSession.sendMessage({
+      //   type: 'update_room',
+      //   data: JSON.stringify([...this.getFreeRoms(), room.updateRoomInfo()]),
+      //   id: 0,
+      // });
     }
   };
 }

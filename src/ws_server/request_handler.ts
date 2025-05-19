@@ -23,9 +23,18 @@ class RequestHandler {
           userSession.room?.attack(data);
         },
       ],
-      // ['randomAttack', () => {}],
-      // ['turn', () => {}],
-      // ['finish', () => {}],
+      [
+        'randomAttack',
+        (data, userSession) => {
+          userSession.room?.randomAttack(data);
+        },
+      ],
+      [
+        'single_play',
+        (data, userSession) => {
+          database.singlePlay(data, userSession);
+        },
+      ],
     ]);
   }
 

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import randomIntFromInterval from '../utils/random.ts';
 import { type RoomUser, type Cell, type GameShip, type Ship, type IUser, type Coordinates, Attack, type AttackFeedback } from '../types/types.ts';
 
 class Game {
@@ -21,8 +22,7 @@ class Game {
     }
   }
 
-  addShips = (ships: Ship[]): void => {
-    const board = this.generateGameBoard();
+  addShips = (ships: Ship[], board: Cell[][] = this.generateGameBoard()): void => {
     const gameShips: GameShip[] = ships.map((ship, ind) => {
       const { x, y } = ship.position;
       const len = ship.length;
@@ -114,11 +114,10 @@ class Game {
 
   shoot = ({x, y}: Coordinates): AttackFeedback[] | undefined => {
     const cell = this.gameBoard[y][x];
-    console.log('cell', cell);
-    if (cell.isShoot !== null) {
+    if (!cell.isShoot) {
       cell.isShoot = true;
 
-      if (!cell.ship) {
+      if (cell.ship === null) {
         return [{
           position: { x, y },
           currentPlayer: '',
@@ -173,7 +172,6 @@ class Game {
     
     return [...responseShip, ...response];
   };
-
 }
 
 export default Game;

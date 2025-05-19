@@ -2,6 +2,7 @@ import type User from '../game/user.ts';
 import type Room from '../game/room.ts';
 import { type IUser, type WsRequest } from '@/types/types.ts';
 import { type WebSocket } from 'ws';
+import { serverEmitter } from './index.ts';
 
 class UserSession {
   ws: WebSocket;
@@ -47,7 +48,6 @@ class UserSession {
     });
 
     this.room.gameEmitter.on('start_game', () => {
-      console.log(this.room?.games.find((el) => el.indexPlayer === this.gamePlayer)?.getShips());
       this.sendMessage({
         type: 'start_game',
         data: JSON.stringify({
@@ -59,7 +59,7 @@ class UserSession {
     });
 
     this.room.gameEmitter.on('attack_feedback', (data) => {
-      console.log(data);
+      data;
       data.forEach((el: any) => {
         this.sendMessage({
           type: 'attack',
@@ -80,6 +80,12 @@ class UserSession {
         data: JSON.stringify(data),
         id: 0,
       });
+      if (this.room?.currentPlayerIndex === this.gamePlayer) {
+        this.user?.updateWinner();
+        serverEmitter.emit('update_winners');
+      }
+      this.room?.destroy();
+      this.room = undefined;
     });
   };
 }
