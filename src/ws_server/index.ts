@@ -24,6 +24,10 @@ wss.on('connection', function connection(ws) {
     }
   });
 
+  ws.on('close', () => {
+    userSession.destroy();
+  });
+
   serverEmitter.on('message', (data: WsRequest) => {
     wss.clients.forEach((client) => {
       client.send(JSON.stringify(data));

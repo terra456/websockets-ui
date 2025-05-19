@@ -109,25 +109,15 @@ class Database {
   };
 
   singlePlay = (_data: string, userSession: UserSession): void => {
-    if (userSession.user && userSession.room === undefined) {
+    if (userSession.user) {
+      if (userSession.room) {
+        userSession.room?.destroy();
+      }
       const { name, index } = userSession.user.getUser();
       const room = new SingleRoom({ name, index });
       this.rooms.push(room);
-      room.destroy = () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        // room === undefined;
-        const ind = this.rooms.findIndex((el) => el.roomId === room.roomId);
-        if (ind >= 0) {
-          this.rooms.splice(ind, 1);
-        }
-      };
       userSession.setRoom(room);
       room.gameEmitter.emit('create_game');
-      // userSession.sendMessage({
-      //   type: 'update_room',
-      //   data: JSON.stringify([...this.getFreeRoms(), room.updateRoomInfo()]),
-      //   id: 0,
-      // });
     }
   };
 }

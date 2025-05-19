@@ -111,6 +111,11 @@ class Room {
       this.attack(JSON.stringify({ indexPlayer, gameId, ...coordinates }));
     }
   };
+
+  endGame = (gamePlayer: string): void => {
+    const anoutherUser = this.games.find((el) => el.indexPlayer !== gamePlayer)?.getUser();
+    this.gameEmitter.emit('finish', { winPlayer: anoutherUser?.idPlayer });
+  };
 }
 
 export default Room;
