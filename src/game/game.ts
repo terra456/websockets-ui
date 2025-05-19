@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
-import randomIntFromInterval from '../utils/random.ts';
-import { type RoomUser, type Cell, type GameShip, type Ship, type IUser, type Coordinates, Attack, type AttackFeedback } from '../types/types.ts';
+import { type RoomUser, type Cell, type GameShip, type Ship, type IUser, type Coordinates, type AttackFeedback } from '../types/types.ts';
 
 class Game {
   gameId: string;
