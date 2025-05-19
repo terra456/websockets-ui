@@ -1,4 +1,4 @@
-import { createWebSocketStream, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import RequestHandler from './request_handler.ts';
 import Database from './database.ts';
 import UserSession from './user_session.ts';

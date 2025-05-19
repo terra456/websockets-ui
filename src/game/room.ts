@@ -63,8 +63,6 @@ class Room {
 
   startGame = (): void => {
     this.isGameStarted = true;
-    // TODO Random
-    // this.currentPlayerIndex = gameUser.idPlayer;
     this.gameEmitter.emit('start_game');
   };
 
