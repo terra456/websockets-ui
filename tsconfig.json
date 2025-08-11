@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "isolatedModules": true,
+    "noEmit": true,
+    "noEmitOnError": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "outDir": "build",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "types": ["node", "jest"],
+    "allowImportingTsExtensions": true,
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      },
+      {
+        "transform": "typescript-transform-paths",
+        "afterDeclarations": true
+      }
+    ],
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["process.env.d.ts", "./**/*.ts", "index.ts", "jest.config.js"],
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}
